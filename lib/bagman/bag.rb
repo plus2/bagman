@@ -23,10 +23,16 @@ module Bagman
       if options[:unbagged]
         # no-op
         # unbagged_field(name, type, options, &blk)
+
       elsif options[:encrypted]
         crypto_field(name, type, options, &blk)
+
+      elsif options[:uncast]
+        uncast_bag_field(name, type, options, &blk)
+
       else
         bag_field(name, type, options, &blk)
+
       end
     end
 
@@ -56,6 +62,19 @@ module Bagman
                          else
                            value.to_s
                          end
+      end
+    end
+
+
+    def uncast_bag_field(name, type, options, &blk)
+      name = name.to_s
+
+      target_class.send :define_method, name do
+        self.bag[name]
+      end
+
+      target_class.send :define_method, "#{name}=" do |value|
+        self.bag[name] = value
       end
     end
 
