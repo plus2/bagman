@@ -68,9 +68,15 @@ module Bagman
 
     def uncast_bag_field(name, type, options, &blk)
       name = name.to_s
+      if default = options[:default]
+        default_generator = "__#{name}_default"
+        target_class.send :define_method, default_generator do
+          default.dup
+        end
+      end
 
       target_class.send :define_method, name do
-        self.bag[name]
+        self.bag[name] || (default_generator && send(default_generator))
       end
 
       target_class.send :define_method, "#{name}=" do |value|
