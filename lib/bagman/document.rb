@@ -139,6 +139,18 @@ module Bagman
         superclass.bag if superclass.respond_to?(:bag)
       end
 
+
+      def bag_field(name)
+        class_eval <<-EOMETHOD
+          def #{name}=(value)
+            bag["#{name}"] = value
+          end
+
+          def #{name}
+            bag["#{name}"]
+          end
+        EOMETHOD
+      end
     end
   end
 
