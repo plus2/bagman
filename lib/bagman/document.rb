@@ -117,13 +117,28 @@ module Bagman
 
 
     module ClassMethods
+
       def bag(&blk)
         if block_given?
+          @bagman_has_no_bag = false
           @bag = Bag.new(self, &blk)
         else
+          unless @bag
+            @bag = __super_bag
+            @bagman_has_no_bag = ! @bag
+          end
+
+          raise "no bag defined" if @bagman_has_no_bag
+
           @bag
         end
       end
+
+
+      def __super_bag
+        superclass.bag if superclass.respond_to?(:bag)
+      end
+
     end
   end
 
