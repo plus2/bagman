@@ -13,6 +13,7 @@ module Bagman
       instance_eval(&blk)
     end
 
+
     alias :fields :columns
 
 
@@ -54,6 +55,7 @@ module Bagman
         if index_name = column.index_name
           write_attribute(index_name, value)
         end
+
 
         self.bag[name] = if s = options[:serialize]
                            s[value]

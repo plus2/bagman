@@ -11,24 +11,40 @@ module Bagman
       before_save :serialize_bag
     end
 
+
     def bag
       @bag ||= decode_or_initialize_bag
     end
 
 
     def bag=(bag)
-      @bag = AngryHash[bag]
+      case bag
+      when NilClass
+        @bag = AngryHash.new
+      when String
+        @bag = decode_or_initialize_bag(bag)
+      else
+        @bag = AngryHash[bag]
+      end.tap {
+        mixin_top_level_mixin
+      }
     end
 
 
-    def decode_or_initialize_bag
-       begin
-         AngryHash[ ActiveSupport::JSON.decode( read_attribute('bag') ) ]
-       rescue
-         initialize_bag(AngryHash.new)
-       end.tap {|h|
-         h.extend self.class.bag.top_level_mixin
-       }
+    def decode_or_initialize_bag(bag_string=nil)
+      begin
+        bag_string ||= read_attribute('bag')
+        AngryHash[ ActiveSupport::JSON.decode( bag_string ) ]
+      rescue
+        initialize_bag(AngryHash.new)
+      end.tap {|bag|
+        mixin_top_level_mixin(bag)
+      }
+    end
+
+
+    def mixin_top_level_mixin(hash=@bag)
+      hash.extend self.class.bag.top_level_mixin unless hash.__angry_hash_extension # XXX angry hash should have an API for this
     end
 
 
@@ -45,6 +61,7 @@ module Bagman
       if @bag
         encrypt_crypto_pocket
         write_attribute(:bag, ActiveSupport::JSON.encode(@bag))
+        @bag = nil
       end
     end
 
