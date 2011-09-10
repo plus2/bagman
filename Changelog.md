@@ -1,3 +1,12 @@
+# 0.0.5
+
+- Fixed long standing bug where the bag would become something like `'{"serialised":"bag"}': null` [lachie]
+
+# 0.0.4
+
+- Was never pushed for some reason!
+- `uncast` field type uses `:defaults`. [whalec]
+
 # 0.0.3
 
 - Added `bag_field` class method to `Bagman::Document`s. This allows for adding adhoc accessors for conveniently accessing verbatim bag values. [lachie]
